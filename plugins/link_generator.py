@@ -39,7 +39,7 @@ async def batch(client: Client, message: Message):
     reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Share URL", url=f'https://telegram.me/share/url?url={link}'),
                                          InlineKeyboardButton("Watch Online Here 🌟", url=f'https://telegram.me/share/url?url={file}')
                                          ]])
-    await second_message.reply_text(f"<b>Here Is Your Link</b>\n\n{link}", quote=True, reply_markup=reply_markup)
+    await second_message.reply_text(f"<blockquote><b>Here Is Your Link</b>\n\n{link}</blockquote>", quote=True, reply_markup=reply_markup)
 
 
 
@@ -63,7 +63,7 @@ async def link_generator(client: Client, message: Message):
     reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Share URL", url=f'https://telegram.me/share/url?url={link}'),
                                          InlineKeyboardButton("Watch Online Here 🌟", url=f'https://telegram.me/share/url?url={file}')
                                          ]])
-    await channel_message.reply_text(f"<b>Here Is Your Link</b>\n\n{link}", quote=True, reply_markup=reply_markup)
+    await channel_message.reply_text(f"<blockquote><b>Here Is Your Link</b>\n\n{link}</blockquote>", quote=True, reply_markup=reply_markup)
 
 
 

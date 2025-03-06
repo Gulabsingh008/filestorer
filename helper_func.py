@@ -2,68 +2,32 @@ import asyncio, re, base64
 from pyrogram import filters
 from pyrogram.enums import ChatMemberStatus
 from config import FORCE_SUB_CHANNEL, FORCE_SUB_CHANNEL2, ADMINS
+from database.users_chats_db import db
 from pyrogram.errors.exceptions.bad_request_400 import UserNotParticipant
 from pyrogram.errors import FloodWait
 
 
-
-
-async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL:
-        return True
-    user_id = update.from_user.id
+async def is_verified_user(client, user_id):
+    """ यूज़र की सदस्यता और Join Request को चेक करने वाला फ़ंक्शन """
     if user_id in ADMINS:
-        return True
+        return True, None  # एडमिन को डायरेक्ट एक्सेस मिलेगा
+
+    # पहला चैनल चेक करें (यूज़र को जॉइन करना ज़रूरी है)
     try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL, user_id = user_id)
+        member = await client.get_chat_member(chat_id=FORCE_SUB_CHANNEL, user_id=user_id)
+        if member.status not in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]:
+            return False, "join"
     except UserNotParticipant:
-        return False
-
-    if not member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]:
-        return False
-    else:
-        return True
-
-
-async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL2:
-        return True
-    user_id = update.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL2, user_id = user_id)
-    except UserNotParticipant:
-        return False
-
-    if not member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]:
-        return False
-    else:
-        return True                
-
-
-async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL:
-        return True
-    if not FORCE_SUB_CHANNEL2:
-        return True
-    user_id = update.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL, user_id = user_id)
-    except UserNotParticipant:
-        return False
+        return False, "join"
     
-    try:
-        member = await client.get_chat_member(chat_id = FORCE_SUB_CHANNEL2, user_id = user_id)
-    except UserNotParticipant:
-        return False
-        
-    else:
-        return True
-        
-        
+    # दूसरे चैनल में Request चेक करें
+    request_found = await db.find_join_req(user_id)
+    if not request_found:
+        return False, "request"
+
+    return True, None  # यूज़र ने दोनों स्टेप पूरे कर लिए
+
+
 async def encode(string):
     string_bytes = string.encode("ascii")
     base64_bytes = base64.urlsafe_b64encode(string_bytes)
@@ -72,7 +36,7 @@ async def encode(string):
 
 
 async def decode(base64_string):
-    base64_string = base64_string.strip("=") # links generated before this commit will be having = sign, hence striping them to handle padding errors.
+    base64_string = base64_string.strip("=") # पुराने लिंक में '=' हो सकता है, इसे हटाना ज़रूरी है
     base64_bytes = (base64_string + "=" * (-len(base64_string) % 4)).encode("ascii")
     string_bytes = base64.urlsafe_b64decode(base64_bytes) 
     string = string_bytes.decode("ascii")
@@ -111,7 +75,7 @@ async def get_message_id(client, message):
     elif message.forward_sender_name:
         return 0
     elif message.text:
-        pattern = "https://t.me/(?:c/)?(.*)/(\d+)"
+        pattern = "https://t.me/(?:c/)?(.*)/(\\d+)"
         matches = re.match(pattern,message.text)
         if not matches:
             return 0
@@ -149,11 +113,7 @@ def get_readable_time(seconds: int) -> str:
     return up_time
 
 
-subscribed = filters.create(is_subscribed)
-       
-
-
-
+subscribed = filters.create(lambda _, __, m: is_verified_user(m._client, m.from_user.id))
 
 
 # Jishu Developer 

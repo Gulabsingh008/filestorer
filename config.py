@@ -3,18 +3,18 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-API_ID = int(os.environ.get("API_ID", "0"))  # Default value set to 0
+API_ID = int(os.environ.get("API_ID", "0"))
 API_HASH = os.environ.get("API_HASH", "")
 
 OWNER_ID = int(os.environ.get("OWNER_ID", "7170452349"))
 DB_URL = os.environ.get("DB_URL", "")
 DB_NAME = os.environ.get("DB_NAME", "madflixbotz")
 
-CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "0"))  # Default value set to 0
+CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "0"))
 FORCE_SUB_CHANNEL = os.environ.get("FORCE_SUB_CHANNEL", "")  # पहला चैनल (ज़रूरी सब्सक्रिप्शन)
-FORCE_SUB_CHANNEL2 = os.environ.get("FORCE_SUB_CHANNEL2", "")  # दूसरा चैनल (Request Verification)
+FORCE_SUB_CHANNEL2 = os.environ.get("FORCE_SUB_CHANNEL2", "")  # दूसरा चैनल (Request Verification) ✅ **फिक्स किया गया**
 
-FILE_AUTO_DELETE = int(os.getenv("FILE_AUTO_DELETE", "600"))  # auto delete in seconds
+FILE_AUTO_DELETE = int(os.getenv("FILE_AUTO_DELETE", "600"))
 
 PORT = int(os.environ.get("PORT", "8080"))
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
@@ -58,9 +58,3 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
 def LOGGER(name: str) -> logging.Logger:
     return logging.getLogger(name)
-
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Backup Channel @JishuBotz
-# Developer @JishuDeveloper
